@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MotoPartsAPI.Interfaces;
 using MotoPartsAPI.Models;
 
 namespace MotoPartsAPI.Controllers
@@ -14,9 +15,9 @@ namespace MotoPartsAPI.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly MotoPartsContext _context;
+        private readonly IDbContext _context;
 
-        public UsersController(MotoPartsContext context)
+        public UsersController(IDbContext context)
         {
             _context = context;
         }
@@ -25,14 +26,14 @@ namespace MotoPartsAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Users>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.MotoPartsContext().Users.ToListAsync();
         }
 
         // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Users>> GetUsers(int id)
         {
-            var users = await _context.Users.FindAsync(id);
+            var users = await _context.MotoPartsContext().Users.FindAsync(id);
 
             if (users == null)
             {
@@ -53,11 +54,11 @@ namespace MotoPartsAPI.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(users).State = EntityState.Modified;
+            _context.MotoPartsContext().Entry(users).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _context.MotoPartsContext().SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -80,8 +81,8 @@ namespace MotoPartsAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Users>> PostUsers(Users users)
         {
-            _context.Users.Add(users);
-            await _context.SaveChangesAsync();
+            _context.MotoPartsContext().Users.Add(users);
+            await _context.MotoPartsContext().SaveChangesAsync();
 
             return CreatedAtAction("GetUsers", new { id = users.UserId }, users);
         }
@@ -90,21 +91,21 @@ namespace MotoPartsAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Users>> DeleteUsers(int id)
         {
-            var users = await _context.Users.FindAsync(id);
+            var users = await _context.MotoPartsContext().Users.FindAsync(id);
             if (users == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(users);
-            await _context.SaveChangesAsync();
+            _context.MotoPartsContext().Users.Remove(users);
+            await _context.MotoPartsContext().SaveChangesAsync();
 
             return users;
         }
 
         private bool UsersExists(int id)
         {
-            return _context.Users.Any(e => e.UserId == id);
+            return _context.MotoPartsContext().Users.Any(e => e.UserId == id);
         }
     }
 }
