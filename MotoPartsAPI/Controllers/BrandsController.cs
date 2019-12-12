@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MotoPartsAPI.Interfaces;
 using MotoPartsAPI.Models;
 
 namespace MotoPartsAPI.Controllers
@@ -13,9 +14,9 @@ namespace MotoPartsAPI.Controllers
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        private readonly MotoPartsContext _context;
+        private readonly IDbContext _context;
 
-        public BrandsController(MotoPartsContext context)
+        public BrandsController(IDbContext context)
         {
             _context = context;
         }
@@ -24,14 +25,14 @@ namespace MotoPartsAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Brands>>> GetBrands()
         {
-            return await _context.Brands.ToListAsync();
+            return await _context.MotoPartsContext().Brands.ToListAsync();
         }
 
         // GET: api/Brands/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Brands>> GetBrands(int id)
         {
-            var brands = await _context.Brands.FindAsync(id);
+            var brands = await _context.MotoPartsContext().Brands.FindAsync(id);
 
             if (brands == null)
             {
@@ -52,11 +53,11 @@ namespace MotoPartsAPI.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(brands).State = EntityState.Modified;
+            _context.MotoPartsContext().Entry(brands).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _context.MotoPartsContext().SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -79,8 +80,8 @@ namespace MotoPartsAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Brands>> PostBrands(Brands brands)
         {
-            _context.Brands.Add(brands);
-            await _context.SaveChangesAsync();
+            _context.MotoPartsContext().Brands.Add(brands);
+            await _context.MotoPartsContext().SaveChangesAsync();
 
             return CreatedAtAction("GetBrands", new { id = brands.BrandId }, brands);
         }
@@ -89,21 +90,21 @@ namespace MotoPartsAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Brands>> DeleteBrands(int id)
         {
-            var brands = await _context.Brands.FindAsync(id);
+            var brands = await _context.MotoPartsContext().Brands.FindAsync(id);
             if (brands == null)
             {
                 return NotFound();
             }
 
-            _context.Brands.Remove(brands);
-            await _context.SaveChangesAsync();
+            _context.MotoPartsContext().Brands.Remove(brands);
+            await _context.MotoPartsContext().SaveChangesAsync();
 
             return brands;
         }
 
         private bool BrandsExists(int id)
         {
-            return _context.Brands.Any(e => e.BrandId == id);
+            return _context.MotoPartsContext().Brands.Any(e => e.BrandId == id);
         }
     }
 }
